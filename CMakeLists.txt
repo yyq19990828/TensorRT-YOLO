@@ -21,13 +21,13 @@ endif()
 set(CMAKE_CUDA_ARCHITECTURES 89;86;75;70;61)  # CUDA 架构版本 8.9, 8.6, 7.5, 7.0, 6.1
 
 # 添加编译选项
-option(TENSORRT_PATH "TensorRT Path. Example: /usr/local/tensorrt" "")
-if(NOT TENSORRT_PATH)
-    message(FATAL_ERROR "TensorRT path is not set. Please specify the TensorRT path.")
-endif()
+set(TENSORRT_PATH "/usr" CACHE PATH "TensorRT Path. Example: /usr/local/tensorrt")
+# if(NOT EXISTS "${TENSORRT_PATH}/include/NvInfer.h")
+#     message(FATAL_ERROR "TensorRT path is not set correctly or NvInfer.h not found. Please specify the correct TensorRT path using -DTENSORRT_PATH=/path/to/tensorrt.")
+# endif()
 
 # 添加选项：是否编译Python版本
-option(BUILD_PYTHON "Build Python bindings" OFF)
+option(BUILD_PYTHON "Build Python bindings" ON)
 if(BUILD_PYTHON)
     message(STATUS "Python bindings will be built.")
 

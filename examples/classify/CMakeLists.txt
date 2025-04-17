@@ -23,7 +23,7 @@ set(CMAKE_CUDA_ARCHITECTURES 89;86;75;70;61)  # CUDA 架构版本 8.9, 8.6, 7.5,
 
 
 # 添加编译选项
-option(TENSORRT_PATH "TensorRT Path. Example: /usr/local/tensorrt" "")
+option(TENSORRT_PATH "TensorRT Path. Example: /usr/local/tensorrt" "/usr")
 if(NOT DEFINED TENSORRT_PATH)
     message(FATAL_ERROR "TensorRT path is not set. Please specify the TensorRT path.")
 endif()

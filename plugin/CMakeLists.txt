@@ -1,3 +1,4 @@
+# 下面的代码定义了一个名为 custom_plugins 的共享库目标。add_library 命令会在构建过程中生成一个动态链接库，使得插件可以在 TensorRT 推理时被加载并使用。通过 SHARED 关键字，CMake 知道要将该目标编译为共享库而不是静态库或可执行文件。
 # 定义目标 custom_plugins
 add_library(custom_plugins SHARED)
 
