@@ -2,7 +2,7 @@
  * @file obb.cpp
  * @author laugh12321 (laugh12321@vip.qq.com)
  * @brief OBB C++ 示例
- * @date 2025-01-23
+ * @date 2025-06-07
  *
  * @copyright Copyright (c) 2025 laugh12321. All Rights Reserved.
  *
@@ -13,9 +13,7 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 
-#include "deploy/model.hpp"
-#include "deploy/option.hpp"
-#include "deploy/result.hpp"
+#include "trtyolo.hpp"
 
 namespace fs = std::filesystem;
 
@@ -56,7 +54,7 @@ std::vector<std::string> generate_labels(const std::string& label_file) {
 }
 
 // 将带角度的边界框转换为四个角点
-std::vector<cv::Point> xyxyr_to_xyxyxyxy(const deploy::RotatedBox& box) {
+std::vector<cv::Point> xyxyr_to_xyxyxyxy(const trtyolo::RotatedBox& box) {
     // 计算角度的余弦和正弦值
     float cos_value = std::cos(box.theta);
     float sin_value = std::sin(box.theta);
@@ -84,9 +82,9 @@ std::vector<cv::Point> xyxyr_to_xyxyxyxy(const deploy::RotatedBox& box) {
 }
 
 // 可视化推理结果
-void visualize(cv::Mat& image, deploy::OBBRes& result, const std::vector<std::string>& labels) {
+void visualize(cv::Mat& image, trtyolo::OBBRes& result, const std::vector<std::string>& labels) {
     for (size_t i = 0; i < result.num; ++i) {
-        auto&       box        = result.boxes[i];                          // 当前边界框
+        auto&       xyxyxyxy   = result.boxes[i].xyxyxyxy();               // 当前边界框
         int         cls        = result.classes[i];                        // 当前类别
         float       score      = result.scores[i];                         // 当前置信度
         auto&       label      = labels[cls];                              // 获取类别标签
@@ -96,19 +94,17 @@ void visualize(cv::Mat& image, deploy::OBBRes& result, const std::vector<std::st
         int      base_line;
         cv::Size label_size = cv::getTextSize(label_text, cv::FONT_HERSHEY_SIMPLEX, 0.6, 1, &base_line);
 
-        // 获取旋转矩形的四个角点
-        auto corners = xyxyr_to_xyxyxyxy(box);
-
         // 绘制旋转矩形
-        cv::polylines(image, {corners}, true, cv::Scalar(251, 81, 163), 2, cv::LINE_AA);
+        std::vector<cv::Point> points = {cv::Point(xyxyxyxy[0], xyxyxyxy[1]), cv::Point(xyxyxyxy[2], xyxyxyxy[3]), cv::Point(xyxyxyxy[4], xyxyxyxy[5]), cv::Point(xyxyxyxy[6], xyxyxyxy[7])};
+        cv::polylines(image, points, true, cv::Scalar(251, 81, 163), 2, cv::LINE_AA);
 
         // 绘制标签背景
-        cv::rectangle(image, cv::Point(corners[0].x, corners[0].y - label_size.height),
-                      cv::Point(corners[0].x + label_size.width, corners[0].y),
+        cv::rectangle(image, cv::Point(xyxyxyxy[0], xyxyxyxy[1] - label_size.height),
+                      cv::Point(xyxyxyxy[0] + label_size.width, xyxyxyxy[1]),
                       cv::Scalar(125, 40, 81), -1);
 
         // 绘制标签文本
-        cv::putText(image, label_text, corners[0], cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(253, 168, 208), 1);
+        cv::putText(image, label_text, cv::Point(xyxyxyxy[0], xyxyxyxy[1] - base_line), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(253, 168, 208), 1);
     }
 }
 
@@ -137,14 +133,14 @@ void parse_arguments(int argc, char** argv, std::string& engine_path, std::strin
 }
 
 // 处理单张图像
-void process_single_image(const std::string& image_path, const std::string& output_path, deploy::OBBModel& model, const std::vector<std::string>& labels) {
+void process_single_image(const std::string& image_path, const std::string& output_path, trtyolo::OBBModel& model, const std::vector<std::string>& labels) {
     cv::Mat image = cv::imread(image_path, cv::IMREAD_COLOR);
     if (image.empty()) {
         throw std::runtime_error("Failed to read image from path: " + image_path);
     }
 
-    deploy::Image img(image.data, image.cols, image.rows);
-    auto          result = model.predict(img);
+    trtyolo::Image img(image.data, image.cols, image.rows);
+    auto           result = model.predict(img);
 
     if (!output_path.empty()) {
         visualize(image, result, labels);
@@ -154,12 +150,12 @@ void process_single_image(const std::string& image_path, const std::string& outp
 }
 
 // 处理一批图像
-void process_batch_images(const std::vector<std::string>& image_paths, const std::string& output_path, deploy::OBBModel& model, const std::vector<std::string>& labels) {
-    const int batch_size = model.batch_size();
+void process_batch_images(const std::vector<std::string>& image_paths, const std::string& output_path, trtyolo::OBBModel& model, const std::vector<std::string>& labels) {
+    const int batch_size = model.batch();
     for (size_t i = 0; i < image_paths.size(); i += batch_size) {
-        std::vector<cv::Mat>       images;
-        std::vector<deploy::Image> img_batch;
-        std::vector<std::string>   img_name_batch;
+        std::vector<cv::Mat>        images;
+        std::vector<trtyolo::Image> img_batch;
+        std::vector<std::string>    img_name_batch;
 
         for (size_t j = i; j < i + batch_size && j < image_paths.size(); ++j) {
             cv::Mat image = cv::imread(image_paths[j], cv::IMREAD_COLOR);
@@ -207,14 +203,14 @@ int main(int argc, char** argv) {
             create_output_directory(output_path);
         }
 
-        deploy::InferOption option;
+        trtyolo::InferOption option;
         option.enableSwapRB();
 
         if (!fs::is_regular_file(input_path)) {
             option.enablePerformanceReport();
         }
 
-        auto model = std::make_unique<deploy::OBBModel>(engine_path, option);
+        auto model = std::make_unique<trtyolo::OBBModel>(engine_path, option);
 
         if (fs::is_regular_file(input_path)) {
             process_single_image(input_path, output_path, *model, labels);
@@ -228,7 +224,7 @@ int main(int argc, char** argv) {
 
         std::cout << "Inference completed." << std::endl;
 
-        if (option.enable_performance_report) {
+        if (!fs::is_regular_file(input_path)) {
             auto [throughput_str, gpu_latency_str, cpu_latency_str] = model->performanceReport();
             std::cout << throughput_str << std::endl;
             std::cout << gpu_latency_str << std::endl;
