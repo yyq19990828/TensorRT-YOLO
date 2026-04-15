@@ -26,6 +26,10 @@ English | [简体中文](README.md)
 
 ## <div align="center">🌠 Recent updates</div>
 
+- 2026-03-20: Added support for [YOLO26](https://docs.ultralytics.com/models/yolo26/), including classification, oriented bounding boxes, pose estimation, and instance segmentation. 🌟 NEW
+
+- 2026-01-07: Added support for [YOLO-Master](https://github.com/Tencent/YOLO-Master), including classification, oriented bounding boxes, pose estimation, and instance segmentation. 🌟 NEW
+
 - 2025-10-05: Precision perfectly aligned, CUDA flawlessly replicates LetterBox with a pixel error of 0 in the vast majority of cases. The Python module has undergone significant restructuring, greatly enhancing usability. 🌟 NEW
 
 - 2025-06-09: In C++, only a single header file `trtyolo.hpp` is included, with zero third-party dependencies (no need to link CUDA and TensorRT when using the module). Support for data structures with image spacing (Pitch) has been added. For more details, see [Bilibili](https://www.bilibili.com/video/BV1e2N1zjE3L). 🌟 NEW
@@ -39,7 +43,7 @@ English | [简体中文](README.md)
 ## <div align="center">✨ Key Features</div>
 
 ### 🎯 Diverse YOLO Support
-- **Comprehensive Compatibility**: Supports YOLOv3 to YOLO12 series models, as well as PP-YOLOE, PP-YOLOE+, YOLO-World, and YOLOE, meeting diverse needs. See [🖥️ Supported Models List](#support-models) for details.
+- **Comprehensive Compatibility**: Supports YOLOv3 to YOLO26 series models, as well as YOLO-World and YOLO-Master, meeting diverse needs. See [🖥️ Supported Models List](https://github.com/laugh12321/trtyolo-export/blob/main/README.md#%EF%B8%8F-model-support-list) for details.
 - **Flexible Switching**: Provides simple and easy-to-use interfaces for quick switching between different YOLO versions. 🌟 NEW
 - **Multi-Scenario Applications**: Offers rich example codes covering [Detect](examples/detect/), [Segment](examples/segment/), [Classify](examples/classify/), [Pose](examples/pose/), [OBB](examples/obb/), and more.
 
@@ -51,7 +55,7 @@ English | [简体中文](README.md)
 
 ### 🛠️ Usability
 - **Out-of-the-Box**: Provides comprehensive C++ and Python inference support to meet different developers' needs.
-- **CLI Tools**: Built-in command-line tools for quick model export and inference, improving development efficiency.
+- **CLI Tools**: A concise and intuitive command-line interface with automatic model structure detection, no complex configuration required.
 - **Docker Support**: Offers one-click Docker deployment solutions to simplify environment configuration and deployment processes.
 - **No Third-Party Dependencies**: All functionalities are implemented using standard libraries, eliminating the need for additional dependencies and simplifying deployment.
 - **Easy Deployment**: Provides dynamic library compilation support for easy calling and deployment.
@@ -112,9 +116,9 @@ python -m build --wheel
 pip install dist/trtyolo-6.*-py3-none-any.whl
 ```
 
-### 3. Model Export
+### 3. Model Convert
 
-- Use the [`trtyolo-export`](https://github.com/laugh12321/TensorRT-YOLO/tree/export) tool package that comes with the project to export the ONNX model suitable for inference in this project and build it into a TensorRT engine.
+- Use the [`trtyolo-export`](https://github.com/laugh12321/trtyolo-export) tool package that comes with the project to convert already-exported YOLO-family ONNX models into TensorRT-YOLO compatible outputs and build it into a TensorRT engine.
 
 ### 4. Inference Example
 
