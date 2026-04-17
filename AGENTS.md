@@ -1,10 +1,10 @@
 # AGENTS.md - TensorRT-YOLO
 
-> **Generated:** 2026-01-13 | **Commit:** b3ffeb3 | **Branch:** yyq_develop
+> **Generated:** 2026-04-15 | **Commit:** d08b909 | **Branch:** yyq_develop | **Version:** 6.4.0
 
-High-performance YOLO inference toolkit for NVIDIA. C++/Python bindings for TensorRT-accelerated detection, segmentation, classification, pose, OBB.
+High-performance YOLO inference toolkit for NVIDIA. C++/Python bindings for TensorRT-accelerated detection, segmentation, classification, pose, OBB. Supports YOLOv3–YOLO26, YOLO-World, YOLOE, YOLO-Master.
 
-**Stack:** TensorRT, CUDA, pybind11, CMake, Python
+**Stack:** TensorRT ≥ 8.6.1, CUDA ≥ 11.0.1, pybind11, CMake ≥ 3.18, C++17, Python
 
 ## STRUCTURE
 
@@ -121,17 +121,10 @@ model->clone();  // Thread-safe copy
 3. **Clone pattern**: Shares `ICudaEngine`, creates independent `IExecutionContext` per thread
 4. **Supervision integration**: Python results auto-convert to `sv.Detections`/`sv.KeyPoints`/`sv.Classifications`
 
-## PREREQUISITES
-
-- CUDA >= 11.0.1
-- TensorRT >= 8.6.1
-- CMake >= 3.18
-- C++17 compiler
-- `pybind11[global]` for Python bindings
-
 ## GOTCHAS
 
-- **Model export**: Use `trtyolo-export` from `export` branch (not vanilla ultralytics export)
-- **No CI**: Verification via `examples/` scripts only
-- **Engine compatibility**: Task type in code must match export-time task
-- **Windows**: Set `CMAKE_INSTALL_PREFIX` in PATH for `find_package` to work
+- **Model export**: Use the `trtyolo-export` tool (see [laugh12321/trtyolo-export](https://github.com/laugh12321/trtyolo-export)) — do NOT use vanilla ultralytics export. The model convert workflow is documented per-task under `examples/{task}/README.md`.
+- **No CI / no formal tests**: Verification goes through `examples/` scripts only.
+- **Engine compatibility**: Task type in code must match the task used at export time.
+- **Windows**: Set `CMAKE_INSTALL_PREFIX` in PATH for `find_package` to work.
+- **Fork vs upstream**: This repo (`origin`) is a fork; merge from `upstream/HEAD` (laugh12321/TensorRT-YOLO) when syncing. Work happens on `yyq_develop`.
